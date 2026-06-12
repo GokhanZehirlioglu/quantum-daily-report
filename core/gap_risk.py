@@ -3,38 +3,39 @@ Gap Risk — overnight gap-down analysis.
 
 Gap % = (Open_t - Close_{t-1}) / Close_{t-1}
 
-The ``calculate_g_worst()`` function scans 2 years of daily data and
-returns the single worst (most negative) overnight gap, which is then
-used by ``position_sizing.py`` as a key risk input.
+The ``calculate_g_worst()`` function scans available data and returns the
+single worst overnight gap-down. It requires a minimum of 500 trading days
+(~2 years) for a reliable estimate; anything less triggers a warning.
 """
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any
 
 import pandas as pd
+
+MIN_REQUIRED_DAYS: int = 500
 
 
 def calculate_g_worst(
     df: pd.DataFrame,
-) -> float:
+) -> tuple[float, dict[str, Any]]:
     """
-    Find the worst overnight gap-down over the available history (up to 2 years).
-
-    The result determines the ``g_worst`` parameter in the position-sizing
-    formula and represents the maximum adverse gap the strategy must survive.
+    Find the worst overnight gap-down over available history.
 
     Args:
         df: DataFrame with ``open`` and ``close`` columns (daily).
-            Must have at least 2 rows. Data is assumed to be in
-            chronological order (oldest → newest).
+            Chronological order (oldest → newest). Must have >= 2 rows.
 
     Returns:
-        The absolute value of the largest negative gap, expressed as a
-        decimal fraction (e.g. ``0.20`` for a -20% gap-down).
+        ``(g_worst, metadata)`` where:
 
-        If no negative gaps are found (extremely unlikely in real data),
-        returns ``0.0``.
+        - ``g_worst``: Absolute value of the largest negative gap as a decimal
+          (e.g. ``0.20`` for -20%). Returns ``0.0`` if no negative gaps found.
+        - ``metadata``: Dict with keys:
+            - ``days_analysed``: Number of trading days used.
+            - ``short_data_warning``: ``True`` if fewer than ``MIN_REQUIRED_DAYS``.
+            - ``warning_text``: Human-readable warning or ``""``.
 
     Raises:
         ValueError: If *df* has fewer than 2 rows.
@@ -42,32 +43,41 @@ def calculate_g_worst(
     Example:
         >>> import pandas as pd
         >>> df = pd.DataFrame({
-        ...     "date": pd.date_range("2025-01-01", periods=5, freq="D"),
         ...     "close": [100, 102, 95, 101, 99],
         ...     "open":  [101, 100, 88, 100, 98],
         ... })
-        >>> g_worst = calculate_g_worst(df)
-        >>> round(g_worst, 3)
-        0.074  # (95→88) / 95
+        >>> g, meta = calculate_g_worst(df)
+        >>> round(g, 3), meta["short_data_warning"]
+        (0.074, True)
     """
     if len(df) < 2:
         raise ValueError(
             f"Need at least 2 rows of data to calculate gap risk, got {len(df)}."
         )
 
+    n_days = len(df)
     close_prev = df["close"].shift(1)
     open_t = df["open"]
 
     # Gap % = (Open_t - Close_{t-1}) / Close_{t-1}
     gap_pct = (open_t - close_prev) / close_prev
+    gap_pct = gap_pct.iloc[1:]  # drop first row (no previous close)
 
-    # Drop the first row (no previous close)
-    gap_pct = gap_pct.iloc[1:]
-
-    # Find the most negative gap
     worst_negative = gap_pct.min()
 
     if pd.isna(worst_negative) or worst_negative >= 0:
-        return 0.0
+        g_worst = 0.0
+    else:
+        g_worst = abs(float(worst_negative))
 
-    return abs(float(worst_negative))
+    short_warning = n_days < MIN_REQUIRED_DAYS
+    metadata = {
+        "days_analysed": n_days - 1,  # gaps computed = rows - 1
+        "short_data_warning": short_warning,
+        "warning_text": (
+            f"⚠️ Uyari: Gap risk kisa veri ile ({n_days} gun) hesaplandi. "
+            f"Minimum {MIN_REQUIRED_DAYS} gun onerilir."
+        ) if short_warning else "",
+    }
+
+    return g_worst, metadata

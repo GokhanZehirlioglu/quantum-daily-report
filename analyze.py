@@ -239,7 +239,7 @@ def analyse_symbol(
     ind["fib_618"] = round(high_20d - 0.618 * fib_r, 2)
 
     # ── 3c. Gap Risk ────────────────────────────────
-    g_worst = calculate_g_worst(df)
+    g_worst, gap_meta = calculate_g_worst(df)
     target_date = df.index[-1].strftime("%Y-%m-%d") if hasattr(df.index[-1], "strftime") else "unknown"
 
     # ── 3d. Position Sizing ─────────────────────────
@@ -280,6 +280,7 @@ def analyse_symbol(
         "price": price_data,
         "indicators": _nest_indicators(ind),
         "indicators_flat": ind,
+        "gap_metadata": gap_meta,
         "risk": {
             "composite_score": score,
             "regime_label": regime_label,
@@ -288,6 +289,7 @@ def analyse_symbol(
             "max_position_pct": pos_result.get("position_size_pct", 0),
             "max_position_size": pos_result.get("position_size", 0),
             "position_capped": pos_result.get("capped", False),
+            "cap_reason": pos_result.get("cap_reason", "mathematical"),
             "decision": (
                 "Yeni alim sadece premarket kontrolunden sonra yapilabilir."
                 if regime_label in ("Cok Yuksek Risk", "Yuksek Risk")
@@ -477,10 +479,12 @@ def main() -> int:
                 "price": r["price"],
                 "indicators": r["indicators"],
                 "risk": r["risk"],
+                "gap_metadata": r.get("gap_metadata", {}),
             })
             for r in results
         ]
-        report = build_report(symbol_blocks, summary_table=summary)
+        data_date = results[0].get("target_date", "unknown")
+        report = build_report(symbol_blocks, summary_table=summary, data_date=data_date)
 
         bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
         chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")

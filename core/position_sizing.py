@@ -1,16 +1,19 @@
 """
 Position Sizing — risk-based position size calculator.
 
-Formula (agreed in design):
+Core formula:
     S_pos       = r_max / max(g_worst, g_floor)
-    S_pos_final = min(S_pos, max_position_cap)
+    S_pos_final = min(S_pos, dynamic_cap)
 
 Where:
     r_max            Max acceptable $ loss per trade (e.g. 1% of portfolio = $100)
     g_worst          Worst historical overnight gap-down (from ``gap_risk.py``)
-    g_floor          Minimum floor for g_worst (default 0.10 = 10% — prevents
-                     infinite leverage on tiny gaps)
-    max_position_cap Hard ceiling as fraction of portfolio (default 0.15 = 15%)
+    g_floor          Minimum denominator floor (default 0.10 = 10%)
+
+    Dynamic cap is applied based on risk regime:
+        g_worst >= 0.15 (Cok Yuksek)  →  max 5%  of portfolio
+        g_worst >= 0.10 (Yuksek)      →  max 10% of portfolio
+        g_worst <  0.10 (Orta/Dusuk)  →  max 15% of portfolio
 """
 
 from __future__ import annotations
@@ -18,34 +21,35 @@ from __future__ import annotations
 from typing import Optional
 
 
+def _dynamic_cap_pct(g_worst: float) -> float:
+    """Return the max position cap as a *fraction* of portfolio (decimal)."""
+    if g_worst >= 0.15:
+        return 0.05   # 5%
+    if g_worst >= 0.10:
+        return 0.10   # 10%
+    return 0.15       # 15%
+
+
 def calculate_position_size(
     r_max: float,
     g_worst: float,
     g_floor: float = 0.10,
-    max_position_cap: float = 0.15,
     portfolio_value: float = 10_000.0,
-) -> dict[str, float]:
+) -> dict[str, float | bool | str]:
     """
     Calculate the maximum position size for a single trade.
 
-    The formula ensures that even in the worst historical gap-down scenario,
-    the loss on this single position stays within ``r_max``.
+    The cap is applied dynamically according to the risk regime derived
+    from ``g_worst`` (see ``_dynamic_cap_pct``).
 
     Args:
         r_max: Maximum acceptable loss in **dollars** for this trade.
-               (e.g. ``100.0`` = 1% of a $10 000 portfolio).
         g_worst: Worst historical gap-down as a decimal (e.g. ``0.20`` = -20%).
-                 Output of ``gap_risk.calculate_g_worst()``.
         g_floor: Minimum denominator floor (default ``0.10`` = 10%).
-                 Prevents ``S_pos`` from exploding when a stock has very
-                 small historical gaps.
-        max_position_cap: Hard cap expressed as a **fraction** of
-                          ``portfolio_value`` (default ``0.15`` = 15%).
         portfolio_value: Total portfolio value in dollars.
-                         Used to compute the dollar value of the cap.
 
     Returns:
-        A dict with calculation breakdown:
+        Dict with calculation breakdown:
 
         .. code:: python
 
@@ -57,16 +61,18 @@ def calculate_position_size(
                 "r_max": 100.0,
                 "g_worst": 0.20,
                 "g_floor": 0.10,
-                "cap_value": 1500.0,          # max_position_cap * portfolio_value
+                "cap_pct": 0.10,              # Fraction used as cap
+                "cap_value": 1000.0,          # cap_pct * portfolio_value ($)
                 "capped": False,              # Was the raw value capped?
+                "cap_reason": "mathematical", # "mathematical" | "risk_limit"
             }
 
     Example:
-        >>> result = calculate_position_size(r_max=100.0, g_worst=0.20)
-        >>> result["position_size"]
+        >>> r = calculate_position_size(r_max=100.0, g_worst=0.20)
+        >>> r["position_size"]
         500.0
-        >>> result["position_size_pct"]
-        5.0
+        >>> r["cap_reason"]
+        'mathematical'
     """
     # Validate inputs
     if r_max <= 0:
@@ -81,14 +87,18 @@ def calculate_position_size(
     # Core formula: S_pos = r_max / max(g_worst, g_floor)
     raw_s_pos: float = r_max / g_used
 
-    cap_value: float = max_position_cap * portfolio_value
+    # Dynamic cap
+    cap_pct: float = _dynamic_cap_pct(g_worst)
+    cap_value: float = cap_pct * portfolio_value
 
     if raw_s_pos > cap_value:
-        result: float = cap_value
-        capped: bool = True
+        result = cap_value
+        capped = True
+        cap_reason = "risk_limit"
     else:
         result = raw_s_pos
         capped = False
+        cap_reason = "mathematical"
 
     return {
         "position_size": round(result, 2),
@@ -98,6 +108,8 @@ def calculate_position_size(
         "r_max": r_max,
         "g_worst": g_worst,
         "g_floor": g_floor,
+        "cap_pct": cap_pct,
         "cap_value": round(cap_value, 2),
         "capped": capped,
+        "cap_reason": cap_reason,
     }
