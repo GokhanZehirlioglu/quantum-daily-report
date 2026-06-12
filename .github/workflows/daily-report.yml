@@ -2,14 +2,13 @@ name: Quantum Stocks Daily Report
 
 on:
   schedule:
-    # Her hafta içi 15:00 UTC (Almanya yaz saati 17:00)
-    # Kış saati için 16:00 UTC olarak değiştirin
     - cron: "0 15 * * 1-5"
-  workflow_dispatch:  # manuel tetikleme butonu
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
       - "quantum_report.py"
+      - "analyze.py"
       - "requirements.txt"
 
 jobs:
@@ -43,9 +42,9 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python quantum_report.py
+        run: python analyze.py QBTS,RGTI,IONQ --telegram
 
       - name: Notify on failure
         if: failure()
         run: |
-          echo "Rapor oluşturma başarısız oldu. GitHub Actions loglarını kontrol edin."
+          echo "Rapor olusturma basarisiz oldu. GitHub Actions loglarini kontrol edin."
