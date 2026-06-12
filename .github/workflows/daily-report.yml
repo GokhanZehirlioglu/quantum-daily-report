@@ -13,79 +13,41 @@ on:
       - "core/**"
       - "outputs/**"
       - "data_providers/**"
-      - ".github/workflows/daily-report.yml"
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Cache pip packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies
+      - name: Install
         run: pip install -r requirements.txt
 
-      - name: Run analysis
+      - name: Run
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PORTFOLIO_VALUE: ${{ vars.PORTFOLIO_VALUE || '10000' }}
         run: python analyze.py --telegram
 
-      - name: Verify JSON output
-        run: |
-          if [ -f outputs/analysis_data.json ]; then
-            echo "JSON raporu olusturuldu ✓"
-            echo "| Symbol | Score | Regime |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|-------|--------|" >> $GITHUB_STEP_SUMMARY
-            python3 -c "
-import json
-with open('outputs/analysis_data.json') as f:
-    data = json.load(f)
-for sym, doc in data.get('symbols', {}).items():
-    risk = doc.get('risk', {})
-    print(f'| {sym} | {risk.get(\"composite_score\", \"?\")}/100 | {risk.get(\"regime_label\", \"?\")} |')
-" >> $GITHUB_STEP_SUMMARY
-          else:
-            echo "UYARI: JSON output bulunamadi"
-
-      - name: Upload JSON artifact
+      - name: Save JSON
         uses: actions/upload-artifact@v4
         with:
           name: analysis-data
           path: outputs/analysis_data.json
-          retention-days: 7
 
-      - name: Notify on failure
+      - name: On failure
         if: failure()
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          echo "Rapor olusturma basarisiz. GitHub Actions loglarini kontrol edin."
-          python3 -c "
-import requests, os
-bt = os.environ.get('TELEGRAM_BOT_TOKEN')
-ci = os.environ.get('TELEGRAM_CHAT_ID')
-if bt and ci:
-    requests.post(f'https://api.telegram.org/bot{bt}/sendMessage',
-        json={'chat_id': ci, 'text': '🚨 Sistem Hatasi / Rapor Iptal Edildi. Log: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}', 'parse_mode': 'HTML'},
-        timeout=10)
-"
+          TBOT: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TCHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 -c "import os,requests; bt=os.environ.get('TBOT',''); ci=os.environ.get('TCHAT',''); [requests.post(f'https://api.telegram.org/bot{bt}/sendMessage',json={'chat_id':ci,'text':'ANALYSIS FAILED','parse_mode':'HTML'},timeout=5) for _ in [1] if bt and ci]"
