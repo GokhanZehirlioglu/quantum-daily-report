@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# v2.1 — cloud-ready quantum daily report
+# v2.2 — direct push trigger
 """
 Quantum Stocks Daily Technical Report
 ======================================
@@ -309,6 +309,7 @@ def main():
     print("  KUANTUM HİSSELERİ GÜNLÜK ANALİZ")
     print(f"  {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
     print(f"  Semboller: {', '.join(SYMBOLS)}")
+    print(f"  Token set: {bool(TELEGRAM_BOT_TOKEN)} | Chat ID set: {bool(TELEGRAM_CHAT_ID)}")
     print("=" * 50)
 
     if not TELEGRAM_BOT_TOKEN:
