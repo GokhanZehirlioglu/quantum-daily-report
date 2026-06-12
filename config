@@ -1,0 +1,36 @@
+# Trading Agent — Portfolio Symbols
+# Quantum Computing Watchlist
+
+symbols:
+  - symbol: QBTS
+    name: D-Wave Quantum Inc.
+    sector: quantum-computing
+    weight: 33.3
+    entry_price: null
+    target_price: null
+
+  - symbol: RGTI
+    name: Rigetti Computing Inc.
+    sector: quantum-computing
+    weight: 33.3
+    entry_price: null
+    target_price: null
+
+  - symbol: IONQ
+    name: IonQ Inc.
+    sector: quantum-computing
+    weight: 33.4
+    entry_price: null
+    target_price: null
+
+# Market schedule
+schedule:
+  timezone: Europe/Berlin
+  report_time: "17:00"
+  trading_days: [1, 2, 3, 4, 5]
+
+# Alerts
+alerts:
+  rsi_oversold: 30
+  rsi_overbought: 70
+  volume_spike_ratio: 2.0
