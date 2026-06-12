@@ -1,0 +1,49 @@
+name: Quantum Stocks Daily Report
+
+on:
+  schedule:
+    # Her hafta içi 15:00 UTC (Almanya yaz saati 17:00)
+    # Kış saati için 16:00 UTC olarak değiştirin
+    - cron: "0 15 * * 1-5"
+  workflow_dispatch:  # manuel tetikleme butonu
+  push:
+    branches: [main]
+    paths:
+      - "quantum_report.py"
+      - "requirements.txt"
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run analysis
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python quantum_report.py
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Rapor oluşturma başarısız oldu. GitHub Actions loglarını kontrol edin."
