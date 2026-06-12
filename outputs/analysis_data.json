@@ -1,0 +1,241 @@
+{
+  "engine": "quantum-decision-support-engine",
+  "version": "0.3.0",
+  "timestamp": "2026-06-12T11:06:12.650605+00:00",
+  "date": "2026-06-12",
+  "symbol_count": 3,
+  "symbols": {
+    "QBTS": {
+      "engine": "quantum-decision-support-engine",
+      "version": "0.3.0",
+      "timestamp": "2026-06-12T11:06:12.650510+00:00",
+      "generated_at": "2026-06-12 11:06 UTC",
+      "symbol": "QBTS",
+      "target_date": "2026-06-11",
+      "price": {
+        "last": 23.82,
+        "open": 23.16,
+        "high": 24.41,
+        "low": 22.75,
+        "change_pct": 2.45,
+        "change_5d_pct": -13.82
+      },
+      "indicators": {
+        "trend": {
+          "sma_20": 25.18249979019165,
+          "sma_50": 21.47119993209839,
+          "ema_12": null,
+          "ema_26": null,
+          "vs_sma20_pct": -5.4,
+          "macd": 0.8778085960077462,
+          "macd_signal": 1.5867032324924293,
+          "macd_hist": -0.7088946364846831,
+          "macd_bullish": false,
+          "macd_signal_type": "bearish",
+          "adx": null,
+          "trend_direction": null,
+          "trend_strength": null
+        },
+        "momentum": {
+          "rsi": 48.687764468592796,
+          "rsi_zone": "Notr"
+        },
+        "volatility": {
+          "atr": 2.629829465510599,
+          "atr_pct": 11.0,
+          "bb_upper": null,
+          "bb_mid": 25.18249979019165,
+          "bb_lower": null,
+          "bb_position_pct": null,
+          "bb_squeeze": false
+        },
+        "volume": {
+          "last": 25025400,
+          "avg_5d": 32259180,
+          "ratio": 0.8,
+          "obv_trend": null
+        },
+        "levels": {
+          "pivot": 23.66,
+          "r1": 24.57,
+          "s1": 22.91,
+          "r2": 37.47,
+          "s2": 9.85,
+          "high_20d": 31.55,
+          "low_20d": 17.74,
+          "fib_382": 26.27,
+          "fib_618": 23.01
+        }
+      },
+      "risk": {
+        "composite_score": 30,
+        "regime_label": "Cok Yuksek Risk",
+        "trend_label": "Ayi",
+        "gap_risk_pct": 6.7,
+        "max_position_size": 1000.0,
+        "max_position_pct": 10.0,
+        "position_capped": false
+      },
+      "meta": {
+        "data_source": "yfinance",
+        "rule_count": 0
+      }
+    },
+    "RGTI": {
+      "engine": "quantum-decision-support-engine",
+      "version": "0.3.0",
+      "timestamp": "2026-06-12T11:06:12.650554+00:00",
+      "generated_at": "2026-06-12 11:06 UTC",
+      "symbol": "RGTI",
+      "target_date": "2026-06-11",
+      "price": {
+        "last": 20.63,
+        "open": 19.27,
+        "high": 21.23,
+        "low": 19.16,
+        "change_pct": 6.09,
+        "change_5d_pct": -14.61
+      },
+      "indicators": {
+        "trend": {
+          "sma_20": 22.0135000705719,
+          "sma_50": 19.105900115966797,
+          "ema_12": null,
+          "ema_26": null,
+          "vs_sma20_pct": -6.3,
+          "macd": 0.5772566603422185,
+          "macd_signal": 1.2658213052943912,
+          "macd_hist": -0.6885646449521727,
+          "macd_bullish": false,
+          "macd_signal_type": "bearish",
+          "adx": null,
+          "trend_direction": null,
+          "trend_strength": null
+        },
+        "momentum": {
+          "rsi": 48.419547378245625,
+          "rsi_zone": "Notr"
+        },
+        "volatility": {
+          "atr": 2.4734094701179177,
+          "atr_pct": 12.0,
+          "bb_upper": null,
+          "bb_mid": 22.0135000705719,
+          "bb_lower": null,
+          "bb_position_pct": null,
+          "bb_squeeze": false
+        },
+        "volume": {
+          "last": 46393000,
+          "avg_5d": 43100580,
+          "ratio": 1.1,
+          "obv_trend": null
+        },
+        "levels": {
+          "pivot": 20.34,
+          "r1": 21.52,
+          "s1": 19.45,
+          "r2": 32.94,
+          "s2": 7.74,
+          "high_20d": 28.06,
+          "low_20d": 15.46,
+          "fib_382": 23.25,
+          "fib_618": 20.27
+        }
+      },
+      "risk": {
+        "composite_score": 35,
+        "regime_label": "Cok Yuksek Risk",
+        "trend_label": "Ayi",
+        "gap_risk_pct": 4.5,
+        "max_position_size": 1000.0,
+        "max_position_pct": 10.0,
+        "position_capped": false
+      },
+      "meta": {
+        "data_source": "yfinance",
+        "rule_count": 0
+      }
+    },
+    "IONQ": {
+      "engine": "quantum-decision-support-engine",
+      "version": "0.3.0",
+      "timestamp": "2026-06-12T11:06:12.650587+00:00",
+      "generated_at": "2026-06-12 11:06 UTC",
+      "symbol": "IONQ",
+      "target_date": "2026-06-11",
+      "price": {
+        "last": 57.99,
+        "open": 56.54,
+        "high": 59.47,
+        "low": 54.75,
+        "change_pct": 2.4,
+        "change_5d_pct": -11.68
+      },
+      "indicators": {
+        "trend": {
+          "sma_20": 60.943000411987306,
+          "sma_50": 49.57940013885498,
+          "ema_12": null,
+          "ema_26": null,
+          "vs_sma20_pct": -4.8,
+          "macd": 2.7650717840882706,
+          "macd_signal": 4.532910352083308,
+          "macd_hist": -1.767838567995037,
+          "macd_bullish": false,
+          "macd_signal_type": "bearish",
+          "adx": null,
+          "trend_direction": null,
+          "trend_strength": null
+        },
+        "momentum": {
+          "rsi": 50.16644839648142,
+          "rsi_zone": "Notr"
+        },
+        "volatility": {
+          "atr": 5.83136495480283,
+          "atr_pct": 10.1,
+          "bb_upper": null,
+          "bb_mid": 60.943000411987306,
+          "bb_lower": null,
+          "bb_position_pct": null,
+          "bb_squeeze": false
+        },
+        "volume": {
+          "last": 25100600,
+          "avg_5d": 31961520,
+          "ratio": 0.8,
+          "obv_trend": null
+        },
+        "levels": {
+          "pivot": 57.4,
+          "r1": 60.05,
+          "s1": 55.34,
+          "r2": 85.54,
+          "s2": 29.26,
+          "high_20d": 73.65,
+          "low_20d": 45.51,
+          "fib_382": 62.9,
+          "fib_618": 56.26
+        }
+      },
+      "risk": {
+        "composite_score": 40,
+        "regime_label": "Yuksek Risk",
+        "trend_label": "Ayi",
+        "gap_risk_pct": 5.2,
+        "max_position_size": 1000.0,
+        "max_position_pct": 10.0,
+        "position_capped": false
+      },
+      "meta": {
+        "data_source": "yfinance",
+        "rule_count": 0
+      }
+    }
+  },
+  "summary": {
+    "highest_score": 40,
+    "lowest_score": 30
+  }
+}

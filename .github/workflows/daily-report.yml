@@ -7,9 +7,13 @@ on:
   push:
     branches: [main]
     paths:
-      - "quantum_report.py"
       - "analyze.py"
       - "requirements.txt"
+      - "config/**"
+      - "core/**"
+      - "outputs/**"
+      - "data_providers/**"
+      - ".github/workflows/daily-report.yml"
 
 jobs:
   analyze:
@@ -42,9 +46,46 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python analyze.py QBTS,RGTI,IONQ --telegram
+          PORTFOLIO_VALUE: ${{ vars.PORTFOLIO_VALUE || '10000' }}
+        run: python analyze.py --telegram
+
+      - name: Verify JSON output
+        run: |
+          if [ -f outputs/analysis_data.json ]; then
+            echo "JSON raporu olusturuldu ✓"
+            echo "| Symbol | Score | Regime |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+            python3 -c "
+import json
+with open('outputs/analysis_data.json') as f:
+    data = json.load(f)
+for sym, doc in data.get('symbols', {}).items():
+    risk = doc.get('risk', {})
+    print(f'| {sym} | {risk.get(\"composite_score\", \"?\")}/100 | {risk.get(\"regime_label\", \"?\")} |')
+" >> $GITHUB_STEP_SUMMARY
+          else:
+            echo "UYARI: JSON output bulunamadi"
+
+      - name: Upload JSON artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-data
+          path: outputs/analysis_data.json
+          retention-days: 7
 
       - name: Notify on failure
         if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          echo "Rapor olusturma basarisiz oldu. GitHub Actions loglarini kontrol edin."
+          echo "Rapor olusturma basarisiz. GitHub Actions loglarini kontrol edin."
+          python3 -c "
+import requests, os
+bt = os.environ.get('TELEGRAM_BOT_TOKEN')
+ci = os.environ.get('TELEGRAM_CHAT_ID')
+if bt and ci:
+    requests.post(f'https://api.telegram.org/bot{bt}/sendMessage',
+        json={'chat_id': ci, 'text': '🚨 Sistem Hatasi / Rapor Iptal Edildi. Log: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}', 'parse_mode': 'HTML'},
+        timeout=10)
+"

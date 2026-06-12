@@ -1,0 +1,39 @@
+# ────────────────────────────────────────────────────
+# Portfolio Symbols — Quantum Computing Watchlist
+# ────────────────────────────────────────────────────
+# This file is the single source of truth for which
+# symbols the Decision Support Engine tracks.
+# ────────────────────────────────────────────────────
+
+symbols:
+  - symbol: QBTS
+    name: "D-Wave Quantum Inc."
+    sector: quantum-computing
+    exchange: NASDAQ
+    currency: USD
+    active: true
+    metadata:
+      description: "Leading provider of quantum annealing systems and cloud-based quantum computing services."
+      added_date: "2026-06-10"
+
+  - symbol: RGTI
+    name: "Rigetti Computing Inc."
+    sector: quantum-computing
+    exchange: NASDAQ
+    currency: USD
+    active: true
+    metadata:
+      description: "Pioneer in hybrid quantum-classical computing with superconducting quantum processors."
+      added_date: "2026-06-10"
+
+  - symbol: IONQ
+    name: "IonQ Inc."
+    sector: quantum-computing
+    exchange: NYSE
+    currency: USD
+    active: true
+    metadata:
+      description: "Leader in trapped-ion quantum computing with cloud-accessible quantum systems."
+      added_date: "2026-06-10"
+
+watchlist: []

@@ -1,0 +1,43 @@
+# ────────────────────────────────────────────────────
+# System Settings — Decision Support Engine
+# ────────────────────────────────────────────────────
+# API keys are stored as environment variables for
+# security. This file defines the KEY NAMES to look
+# up at runtime, plus system-level defaults.
+# ────────────────────────────────────────────────────
+
+general:
+  engine_name: "quantum-decision-support-engine"
+  version: "0.2.0"
+  environment: "development"  # development | staging | production
+  timezone: "Europe/Berlin"
+
+data_providers:
+  primary:
+    name: polygon
+    env_api_key: "POLYGON_API_KEY"
+    base_url: "https://api.polygon.io"
+    rate_limit_per_minute: 5
+    timeout_seconds: 15
+
+  fallback:
+    name: alpha_vantage
+    env_api_key: "ALPHA_VANTAGE_API_KEY"
+    base_url: "https://www.alphavantage.co/query"
+    rate_limit_per_minute: 5
+    timeout_seconds: 15
+
+validation:
+  strict_mode: true
+  require_volume: true
+  require_high_gt_low: true
+  require_close_not_null: true
+  require_date_match: true
+
+telegram:
+  env_bot_token: "TELEGRAM_BOT_TOKEN"
+  env_chat_id: "TELEGRAM_CHAT_ID"
+
+logging:
+  level: "INFO"            # DEBUG | INFO | WARNING | ERROR | CRITICAL
+  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
