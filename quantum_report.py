@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# v2.1 — cloud-ready quantum daily report
 """
 Quantum Stocks Daily Technical Report
 ======================================
