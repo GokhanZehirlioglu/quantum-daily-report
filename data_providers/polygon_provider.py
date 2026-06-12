@@ -87,11 +87,12 @@ class PolygonProvider(BaseProvider):
         url = (
             f"{self._base_url}/v2/aggs/ticker/{symbol.upper()}"
             f"/range/1/day/{target_date}/{target_date}"
-            f"?adjusted=true&sort=asc&limit=1&apiKey={self._api_key}"
+            f"?adjusted=true&sort=asc&limit=1"
         )
+        headers = {"Authorization": f"Bearer {self._api_key}"}
 
         try:
-            resp = requests.get(url, timeout=self._timeout)
+            resp = requests.get(url, headers=headers, timeout=self._timeout)
             self._request_timestamps.append(time.monotonic())
         except requests.Timeout:
             raise ProviderError(
